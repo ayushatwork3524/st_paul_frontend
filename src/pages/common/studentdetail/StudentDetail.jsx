@@ -294,7 +294,7 @@ export const StudentDetail = () => {
         link.download = "leaving-certificate.pdf";
         window.document.body.appendChild(link);
         link.click();
-        window.document.body.removeChild(link);
+        window.document.body.removeChild(link); 
       } else {
         console.error("No data in response");
       }
