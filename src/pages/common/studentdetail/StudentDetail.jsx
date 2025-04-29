@@ -285,31 +285,6 @@ export const StudentDetail = () => {
     );
   };
 
-  const handleGenerateLeaving = async () => {
-    dispatch(setLoading(true));
-
-    try {
-      const res = await generateLeavingCertificateService(student?.studentId);
-
-      if (res && res.data) {
-        const blob = new Blob([res.data], { type: "application/pdf" });
-
-        const link = window.document.createElement("a");
-        link.href = window.URL.createObjectURL(blob);
-        link.download = "leaving-certificate.pdf";
-        window.document.body.appendChild(link);
-        link.click();
-        window.document.body.removeChild(link);
-      } else {
-        console.error("No data in response");
-      }
-    } catch (err) {
-      console.error("Failed to generate leaving certificate:", err);
-    }
-
-    dispatch(setLoading(false));
-  };
-
   const handleAddDocument = () => {
     navigate(`/user/student/${studentId}/document`);
   };
