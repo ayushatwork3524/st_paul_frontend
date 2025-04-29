@@ -1,6 +1,5 @@
 import { Navigate, Outlet } from "react-router-dom";
 import { getUserFromCookie } from "../security/cookies/UserCookie";
-import { ROLE_HIERARCHY } from "./RoleHierachy";
 
 const ProtectedRoute = ({ allowedRoles }) => {
   const user = getUserFromCookie();
@@ -11,17 +10,11 @@ const ProtectedRoute = ({ allowedRoles }) => {
 
   const userRole = user?.role;
 
-  if (userRole === "SUPERADMIN") {
+  if (allowedRoles.includes(userRole) || userRole === "SUPERADMIN") {
     return <Outlet />;
   }
 
-  const canAccess = ROLE_HIERARCHY[userRole]?.includes(allowedRoles[0]);
-
-  if (!canAccess) {
-    return <Navigate to="*" replace />;
-  }
-
-  return <Outlet />;
+  return <Navigate to="*" replace />;
 };
 
 export default ProtectedRoute;

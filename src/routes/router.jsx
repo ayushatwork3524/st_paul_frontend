@@ -23,6 +23,8 @@ import { StudentList } from "../pages/accountant/StudentList";
 import { StudentAcademics } from "../pages/accountant/StudentAcademics";
 import { PendingApplications } from "../pages/accountant/PendingApplications";
 import { FailedStudents } from "../pages/common/students/FailedStudents";
+import TcPdfPreviewEditable from "../uitl/TcPdfPreviewEditable";
+import { NoSidebarLayout } from "../components/layout/NoSidebarLayout";
 
 export const router = createBrowserRouter([
   {
@@ -62,6 +64,13 @@ export const router = createBrowserRouter([
         ],
       },
 
+      // {
+      //   element: <ProtectedRoute allowedRoles={ROLE_HIERARCHY.ADMIN} />,
+      //   children: [
+      //     { path: "student/:studentId/tc", element: <TcPdfPreviewEditable /> },
+      //   ],
+      // },\
+
       {
         element: <ProtectedRoute allowedRoles={ROLE_HIERARCHY.ACOUNTANT} />,
         children: [
@@ -80,6 +89,18 @@ export const router = createBrowserRouter([
       },
     ],
   },
+
+  {
+    path: "student",
+    element: <NoSidebarLayout />,
+    children: [
+      {
+        path: ":studentId/tc",
+        element: <TcPdfPreviewEditable />,
+      },
+    ],
+  },
+
   {
     path: "*",
     element: <NotFoundPage />,

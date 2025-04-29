@@ -282,13 +282,13 @@ export const updateStudentBioFocalService = async (
   }
 };
 
-export const generateLeavingCertificateService = async (studentId) => {
+export const generateLeavingCertificateService = async (studentId, req) => {
   try {
     const token = localStorage.getItem(auth_token);
-    const res = await generateLeavingCertificate(studentId, token);
-    return res;
+    const res = await generateLeavingCertificate(studentId, token, req);
+    return res?.data;
   } catch (error) {
     console.log(error);
     return error?.response?.data || errorResponse;
   }
-}
+};

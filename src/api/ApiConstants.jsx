@@ -32,7 +32,9 @@ export const delete_document_end_point = "/students/documents";
 
 export const update_stream_end_point = "/students/academics";
 
-export const generate_LC_end_point = "/lc/request";
+export const generate_LC_end_point = "/tc/request";
+
+export const generate_TC_end_point = baseUrl + "/manager/tc/request";
 
 //super admin
 export const add_fees_end_point = "/college/fees";

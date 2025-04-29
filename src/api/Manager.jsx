@@ -216,15 +216,10 @@ export const deleteDocumentById = (docId, token) => {
   });
 };
 
-export const generateLeavingCertificate = (studentId, token) => {
-  return manager.get(
-    generate_LC_end_point,
-    {
-      params: {studentId},
-      responseType: "blob", 
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }
-  );
-}
+export const generateLeavingCertificate = (studentId, token, req) => {
+  return manager.post(`${generate_LC_end_point}/${studentId}`, req, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};

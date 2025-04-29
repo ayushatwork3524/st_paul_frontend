@@ -34,6 +34,10 @@ import { UpdateDocument } from "./UpdateDocument";
 import { UpdateAcademicDetail } from "./UpdateAcademicDetail";
 import LeavingCertificatesTable from "./LeavingCertificatesTable";
 import { GrCertificate } from "react-icons/gr";
+import { TCFormModal } from "../tc/TCFormModal";
+import axios from "axios";
+import { generate_TC_end_point } from "../../../api/ApiConstants";
+import { auth_token } from "../../../constants/AppConstants";
 
 export const StudentDetail = () => {
   const { studentId } = useParams();
@@ -46,6 +50,7 @@ export const StudentDetail = () => {
   const [isBankModalOpen, setIsBankModalOpen] = useState(false);
   const [isGuardianOpen, setIsGuardianOpen] = useState(false);
   const [isAcademicOpen, setIsAcademicOpen] = useState(false);
+  const [TCOpen, setTCOpen] = useState(false);
   const [image, setImage] = useState(null);
   const [document, setDocument] = useState(null);
   const [selectedDocId, setSelectedDocId] = useState(null);
@@ -280,34 +285,37 @@ export const StudentDetail = () => {
     );
   };
 
-  const handleGenerateLeaving = async () => {
-    dispatch(setLoading(true));
-  
-    try {
-      const res = await generateLeavingCertificateService(student?.studentId);
-  
-      if (res && res.data) {
-        const blob = new Blob([res.data], { type: "application/pdf" });
-  
-        const link = window.document.createElement("a");
-        link.href = window.URL.createObjectURL(blob);
-        link.download = "leaving-certificate.pdf";
-        window.document.body.appendChild(link);
-        link.click();
-        window.document.body.removeChild(link);
-      } else {
-        console.error("No data in response");
-      }
-    } catch (err) {
-      console.error("Failed to generate leaving certificate:", err);
-    }
-  
-    dispatch(setLoading(false));
-  };
-  
-
   const handleAddDocument = () => {
     navigate(`/user/student/${studentId}/document`);
+  };
+
+  const handleLeavingClick = async () => {
+    const res = await axios.post(
+      `${generate_TC_end_point}/${decodeId(studentId)}`,
+      {},
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + localStorage.getItem(auth_token),
+        },
+      }
+    );
+    const { statusCode } = res.data;
+    if (statusCode === 208) {
+      const base64Pdf = res?.data?.data;
+      const binaryData = atob(base64Pdf);
+      const byteArray = new Uint8Array(binaryData.length);
+      for (let i = 0; i < binaryData.length; i++) {
+        byteArray[i] = binaryData.charCodeAt(i);
+      }
+      const blob = new Blob([byteArray], { type: "application/pdf" });
+      const link = window.document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "TransferCertificate.pdf";
+      link.click();
+    } else {
+      window.open(`/student/${studentId}/tc`);
+    }
   };
 
   if (isLoading) {
@@ -341,9 +349,8 @@ export const StudentDetail = () => {
         </div>
 
         <div className="flex gap-2">
-
           <button
-            onClick={handleGenerateLeaving}
+            onClick={handleLeavingClick}
             className="flex items-center cursor-pointer gap-2 p-2 border rounded-md border-blue-400 text-blue-500 font-medium uppercase hover:bg-blue-100 transition"
           >
             <GrCertificate size={24} />
@@ -468,10 +475,11 @@ export const StudentDetail = () => {
               <div className="flex gap-1" key={index}>
                 <button
                   key={index}
-                  className={`p-2 cursor-pointer text-sm font-semibold rounded-t-md transition ${activeTab === index
-                    ? " text-blue-600 border-b border-b-blue-600"
-                    : "text-gray-600"
-                    }`}
+                  className={`p-2 cursor-pointer text-sm font-semibold rounded-t-md transition ${
+                    activeTab === index
+                      ? " text-blue-600 border-b border-b-blue-600"
+                      : "text-gray-600"
+                  }`}
                   onClick={() => setActiveTab(index)}
                 >
                   {`Class ${record.stdClass}`}
@@ -637,6 +645,11 @@ export const StudentDetail = () => {
           onClose={() => setIsGuardianOpen(false)}
           guardian={student?.guardianInfo}
           onSave={handleGuardianSave}
+        />
+        <TCFormModal
+          isOpen={TCOpen}
+          onClose={() => setTCOpen(false)}
+          studentId={student?.studentId}
         />
       </div>
     </div>
